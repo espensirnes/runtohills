@@ -283,5 +283,3 @@ class MyGame(arcade.Window):
         
         return (x>ctr_x-wdt and x<ctr_x+wdt 
                 and y>ctr_y-hgt and y<ctr_y+wdt)
-
-main()

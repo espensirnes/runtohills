@@ -1,13 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os
 import arcade
 import random
 import numpy as np
 import time
 
-imgpth=os.path.join( os.path.dirname(__file__),'images')
+
 
 
 EXPLOSION_TIME=2
@@ -21,34 +20,20 @@ BOUNCE_DRAG=7
 
 class home(arcade.Sprite):
 	"""
-	Home button.
+	Sprite that represents our space ship.
+
+	Derives from arcade.Sprite.
 	"""
 	def __init__(self,window):
-
+		""" Set up the space ship. """
 
 		# Call the parent Sprite constructor
-		super().__init__(os.path.join(imgpth,'HOME.png'),scale=0.15)
+		super().__init__("images/HOME.png",scale=0.15)
 		w, h = window.size
 
 		self.window=window
 		self.center_x = w*0.12
 		self.center_y = h*0.35	
-		
-		
-class advance(arcade.Sprite):
-	"""
-	Advance button
-	"""
-	def __init__(self,window):
-
-
-		# Call the parent Sprite constructor
-		super().__init__(os.path.join(imgpth,'advance.png'))
-		w, h = window.size
-
-		self.window=window
-		self.center_x = w*0.5
-		self.center_y = h*0.02
 
 class faller(arcade.Sprite):
 	"""
@@ -58,7 +43,7 @@ class faller(arcade.Sprite):
 		""" Set up the space ship. """
 
 		# Call the parent Sprite constructor
-		super().__init__(os.path.join(imgpth,'Falling_avatar.png'),scale=0.05)
+		super().__init__("images/Falling_avatar.png",scale=0.05)
 		w, h = window.size
 		self.alpha=0
 		self.window=window
@@ -90,7 +75,7 @@ class walker(arcade.Sprite):
 	def __init__(self,window):
 
 		# Call the parent Sprite constructor
-		super().__init__(os.path.join(imgpth,"Approach_avatar.png"))
+		super().__init__("images/Approach_avatar.png")
 		w, h = window.size
 		self.window=window
 		self.alpha=0
@@ -113,7 +98,7 @@ class climber(arcade.Sprite):
 	"""
 	def __init__(self,window):
 		# Call the parent Sprite constructor
-		super().__init__(os.path.join(imgpth,"climbing_avatar.png"),scale=0.05)
+		super().__init__("images/climbing_avatar.png",scale=0.05)
 		w, h = window.size
 		self.window=window
 		self.alpha=0
@@ -125,7 +110,7 @@ class winner(arcade.Sprite):
 	"""
 	def __init__(self,window):
 		# Call the parent Sprite constructor
-		super().__init__(os.path.join(imgpth,"Summit_avatar.png"),scale=0.04)
+		super().__init__("images/Summit_avatar.png",scale=0.04)
 		w, h = window.size
 		self.window=window
 		self.alpha=0
@@ -169,7 +154,7 @@ class exploder(arcade.Sprite):
 		self.window=window
 		w, h = window.size
 		scale=0.25
-		super().__init__(os.path.join(imgpth,"Explosion.png"),scale)
+		super().__init__("images/Explosion.png",scale)
 		self.alpha=0
 		self.change=h*0.05
 		self.isexploding=False
@@ -287,12 +272,12 @@ class dice(arcade.Sprite):
 		super().__init__()
 		self.offsetlist=[]
 		w, h = window.size
-		for img, in [[os.path.join(imgpth,"Dice1.png")],
-		             [os.path.join(imgpth,"Dice2.png")],
-		                [os.path.join(imgpth,"Dice3.png")],
-		                [os.path.join(imgpth,"Dice4.png")],
-		                [os.path.join(imgpth,"Dice5.png")],
-		                [os.path.join(imgpth,"Dice6.png")]]:
+		for img, in [["images/Dice1.png"],
+		             ["images/Dice2.png"],
+		                ["images/Dice3.png"],
+		                ["images/Dice4.png"],
+		                ["images/Dice5.png"],
+		                ["images/Dice6.png"]]:
 			texture = arcade.load_texture(img)
 			self.textures.append(texture) 
 		self.set_texture(0)
@@ -376,12 +361,12 @@ class dice_color(arcade.Sprite):
 		# Call the parent Sprite constructor
 		super().__init__()
 		self.offsetlist=[]
-		for img, in [[os.path.join(imgpth,f"Dice1_{color}.png")],
-		             [os.path.join(imgpth,f"Dice2_{color}.png")],
-		                [os.path.join(imgpth,f"Dice3_{color}.png")],
-		                [os.path.join(imgpth,f"Dice4_{color}.png")],
-		                [os.path.join(imgpth,f"Dice5_{color}.png")],
-		                [os.path.join(imgpth,f"Dice6_{color}.png")]]:
+		for img, in [[f"images/Dice1_{color}.png"],
+		             [f"images/Dice2_{color}.png"],
+		                [f"images/Dice3_{color}.png"],
+		                [f"images/Dice4_{color}.png"],
+		                [f"images/Dice5_{color}.png"],
+		                [f"images/Dice6_{color}.png"]]:
 			texture = arcade.load_texture(img)
 			self.textures.append(texture) 
 		self.set_texture(0)

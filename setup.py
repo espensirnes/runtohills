@@ -22,7 +22,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 
 setup(
     name='runtohills',
-    version='1.0.0',
+    version='1.0.1',
 
     description='GUI for running economic experiments',
     long_description=long_description,
@@ -46,5 +46,11 @@ setup(
     packages=find_packages(),
     install_requires=['arcade'],
 	python_requires='>=3.6',
+	entry_points={
+	    'console_scripts': [
+	        'runtohills=runtohills:main',
+	        ],
+	    },	
+
 
 )
