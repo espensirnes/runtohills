@@ -95,13 +95,18 @@ class walker(arcade.Sprite):
 		self.window=window
 		self.alpha=0
 		self.becoming_visible=True
+		self.start_win=window.start_win
 		
 
 	def update(self):
-		if self.becoming_visible:
+		if self.window.start_win_closed==False:
 			self.alpha=min((self.alpha+COLOR_SPEED,MAX_ALPHA))
+			cp=self.start_win.progressbar['value']
+			self.start_win.update(max((75+60*self.alpha/MAX_ALPHA,cp)))
 			if self.alpha==MAX_ALPHA:
 				self.becoming_visible=False
+				self.start_win.close()
+				self.window.start_win_closed=True
 
 		super().update()    
 

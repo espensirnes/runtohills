@@ -22,7 +22,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 
 setup(
     name='runtohills',
-    version='1.0.1',
+    version='1.0.5',
 
     description='GUI for running economic experiments',
     long_description=long_description,
@@ -32,6 +32,10 @@ setup(
     author_email='espen.sirnes@uit.no',
 
     license='GPL-3.0',
+	
+	package_data={
+	'': ['*.png', '*.jpg']
+	},
 
     classifiers=[
         'Development Status :: 4 - Beta',

@@ -9,9 +9,9 @@ import arcade
 import os
 #from win32api import GetSystemMetrics
 import time
-import info
+from . import info
 import numpy as np
-import sprites
+from . import sprites
 import ctypes
 import sys
 import pyglet
@@ -27,11 +27,11 @@ STEPS_TO_SUMMIT=20
 MIN_EYES=3
 N_LIVES=15
 
-
+imgpth=os.path.join( os.path.dirname(__file__),'images')
 
 
 def main():
-    window = MyGame("images/Mountain_0sc.png")
+    window = MyGame(os.path.join(imgpth,'Mountain_0sc.png'))
     window.start_new_game(20)
     arcade.run()
 
@@ -43,7 +43,7 @@ class MyGame(arcade.Window):
         super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)#,fullscreen=True)
         #arcade.set_background_color(arcade.color.BLIZZARD_BLUE)
         self.background=arcade.load_texture(background)
-        self.grey_area=arcade.load_texture('images/black.png')
+        self.grey_area=arcade.load_texture(os.path.join(imgpth,'black.png'))
         
 
         file_path = os.path.dirname(os.path.abspath(__file__))
@@ -99,6 +99,8 @@ class MyGame(arcade.Window):
         self.all_sprites_list.append(self.faller)     
         self.home=sprites.home(self)
         self.all_sprites_list.append(self.home)   
+        self.advance_sprite=sprites.advance(self)
+        self.all_sprites_list.append(self.advance_sprite)   
         self.winner=sprites.winner(self)
         self.all_sprites_list.append(self.winner)           
         
@@ -119,7 +121,7 @@ class MyGame(arcade.Window):
             if i==5:
                 row=1
                 cur_pos=start_pos
-            life = arcade.Sprite("images/climbing_avatar.png", scale)
+            life = arcade.Sprite(os.path.join(imgpth,'climbing_avatar.png'), scale)
             life.center_x = cur_pos + life.width
             life.center_y = row*life.height
             cur_pos += life.width
@@ -185,16 +187,22 @@ class MyGame(arcade.Window):
             self.set_viewport(0, w, 0, h)
             
     def on_mouse_press(self, x, y, button, modifiers):
-        if self.dices.done and self.over_sprite(self.home, x, y):
+        if not self.dices.done:
+            return
+        if self.over_sprite(self.home, x, y):
             if sum(self.dices.eyes)<=MIN_EYES:
                 self.total_score=0
             else:
                 self.total_score+=self.score
             self.reset_game()
+            return
+        elif self.over_sprite(self.advance_sprite, x, y):
+            self.advance()
+            
         
     
     def on_mouse_motion(self,x, y, dx, dy):
-        if self.dices.done and self.over_sprite(self.home, x, y):
+        if self.dices.done and (self.over_sprite(self.home, x, y) or self.over_sprite(self.advance_sprite, x, y)):
             self.set_mouse_cursor(self.hand_cursor)  
         else:
             self.set_mouse_cursor(None)  
@@ -283,3 +291,5 @@ class MyGame(arcade.Window):
         
         return (x>ctr_x-wdt and x<ctr_x+wdt 
                 and y>ctr_y-hgt and y<ctr_y+wdt)
+    
+    

@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import sys
 
-import main
+from . import info
+from . import main
 
-main.main()
+def run():
+	main.main()
