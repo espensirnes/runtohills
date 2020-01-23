@@ -1,17 +1,16 @@
 Metadata-Version: 1.2
 Name: runtohills
-Version: 1.0.5
+Version: 1.0.11
 Summary: GUI for running economic experiments
 Home-page: https://github.com/espensirnes/runtohills
 Author: Espen Sirnes
 Author-email: espen.sirnes@uit.no
 License: GPL-3.0
 Description: runtohills
-        =========
+        
         
         this is a GUI for experimental economics
         
-        -------
         
         
 Keywords: Experiments,economics
