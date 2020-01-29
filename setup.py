@@ -22,7 +22,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
 
 setup(
     name='runtohills',
-    version='1.0.11',
+    version='1.0.16',
 
     description='GUI for running economic experiments',
     long_description=long_description,
@@ -48,7 +48,7 @@ setup(
 
     keywords='Experiments, economics',
     packages=find_packages(),
-    install_requires=['arcade','pymssql'],
+    install_requires=['arcade','pymysql'],
 	python_requires='>=3.6',
 	entry_points={
 	    'console_scripts': [

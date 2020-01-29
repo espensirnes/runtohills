@@ -9,10 +9,10 @@ from multiprocessing import pool
 imgpth=os.path.join( os.path.dirname(__file__),'images')
 try:
 	import gui
-	import sql
+	import sql_mysql as sql
 except:
 	from . import gui
-	from . import sql
+	from . import sql_mysql as sql
 
 def main():
 	record=dict()

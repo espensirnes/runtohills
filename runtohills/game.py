@@ -31,7 +31,6 @@ SCREEN_WIDTH = 1900#int(GetSystemMetrics(0))
 SCREEN_HEIGHT = 900#int(GetSystemMetrics(1))
 SCREEN_TITLE = "Run to the hills"
 MAX_APPROACH_SCALE=50
-NOK_PER_CLIMB=1
 STEPS_TO_SUMMIT=20
 MIN_EYES=3
 MAX_MOUNTAINS=4
@@ -46,6 +45,7 @@ class MyGame(arcade.Window):
 	""" Main application class. """
 
 	def __init__(self,start_win,record):
+		self.frame_count=0
 		super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE,resizable=True)#,fullscreen=True)
 		#arcade.set_background_color(arcade.color.BLIZZARD_BLUE)
 
@@ -59,7 +59,8 @@ class MyGame(arcade.Window):
 		self.sunc_cost=record['sunc_cost']
 		self.minuttes=record['minuttes']
 		self.n_lives=record['n_lives']   
-
+		self.nok_per_climb=record['NOK']  
+		self.frame_count = 0
 
 
 		file_path = os.path.dirname(os.path.abspath(__file__))
@@ -73,7 +74,6 @@ class MyGame(arcade.Window):
 		self.danger_txt=['LOW RISK (1/20)','HIGH RISK (1/10)']
 		self.hand_cursor=pyglet.window.Window.get_system_mouse_cursor(self,'hand')
 		self.min_eyes=MIN_EYES
-		self.nok_per_climb=NOK_PER_CLIMB
 		self.steps_to_summit=STEPS_TO_SUMMIT
 		self.start_win=start_win
 		self.start_win_closed=False
@@ -191,7 +191,7 @@ class MyGame(arcade.Window):
 		self.draw_lives()
 		self.draw_walker()
 		self.draw_climber()
-		self.home.draw()
+		self.home.draw(self.dist_to_walk==0)
 
 		# Put the text on the screen.
 
@@ -199,7 +199,7 @@ class MyGame(arcade.Window):
 
 		info_left_margin=int(w*0.01)
 
-		f_width=w*0.26
+		f_width=w*0.28
 		f_height=h*0.4
 
 		arcade.draw_rectangle_filled(f_width/2, h-f_height/2,f_width, f_height, (255,255,255,150))  
@@ -207,12 +207,12 @@ class MyGame(arcade.Window):
 		arcade.draw_text("Rehearsal lives:" ,info_left_margin, int(h*0.1), arcade.color.BLACK, w*0.01)
 
 		arcade.draw_text("Score this round:" ,info_left_margin, int(h*a[0]), arcade.color.BLACK, w*0.015)
-		arcade.draw_text(str(self.score).rjust(3),int(info_left_margin+0.18*w), int(h*a[0]), arcade.color.BLACK, w*0.015)
-		arcade.draw_text("NOK",int(info_left_margin+w*0.21), int(h*a[0]), arcade.color.BLACK, w*0.015)
+		arcade.draw_text(f"{self.score:.2f}".rjust(5),int(info_left_margin+0.18*w), int(h*a[0]), arcade.color.BLACK, w*0.015)
+		arcade.draw_text("NOK",int(info_left_margin+w*0.23), int(h*a[0]), arcade.color.BLACK, w*0.015)
 
 		arcade.draw_text("Total score:" ,info_left_margin, int(h*a[1]), arcade.color.BLACK, w*0.015)
-		arcade.draw_text(str(self.total_score).rjust(3),int(info_left_margin+w*0.18), int(h*a[1]), arcade.color.BLACK, w*0.015)
-		arcade.draw_text("NOK",int(info_left_margin+w*0.21), int(h*a[1]), arcade.color.BLACK, w*0.015)        
+		arcade.draw_text(f"{self.total_score:.2f}".rjust(5),int(info_left_margin+w*0.18), int(h*a[1]), arcade.color.BLACK, w*0.015)
+		arcade.draw_text("NOK",int(info_left_margin+w*0.23), int(h*a[1]), arcade.color.BLACK, w*0.015)        
 
 		arcade.draw_text("Distance to summit:", info_left_margin, int(h*a[2]), arcade.color.BLACK, w*0.015)      
 		arcade.draw_text(str(self.stilltogo).rjust(3),int(info_left_margin+w*0.18), int(h*a[2]), arcade.color.BLACK, w*0.015)
@@ -221,9 +221,14 @@ class MyGame(arcade.Window):
 		arcade.draw_text(str(self.dist_to_walk).rjust(3),int(info_left_margin+w*0.18), int(h*a[3]), arcade.color.BLACK, w*0.015)
 		if self.jar.is_active:
 			arcade.draw_text("DO NOT PRESS KEYS!",int(info_left_margin), int(h*a[4]), arcade.color.BLACK, w*0.015)   
-
-		arcade.draw_rectangle_filled(f_width/2, h*(1-0.23-0.10/2), f_width, h*0.10, self.danger_col[self.high_risk])
-		arcade.draw_text(self.danger_txt[self.high_risk],info_left_margin, int(h*a[5]), arcade.color.WHITE, w*0.027,bold=True)
+		
+		if self.dist_to_walk==0:
+			arcade.draw_rectangle_filled(f_width/2, h*(1-0.23-0.10/2), f_width, h*0.10, self.danger_col[self.high_risk])
+			arcade.draw_text(self.danger_txt[self.high_risk],info_left_margin, int(h*a[5]), arcade.color.WHITE, w*0.027,bold=True)
+		elif self.timer is None:
+			arcade.draw_text('Press Shift+C+U in 2 seconds',info_left_margin, int(h*a[5]), arcade.color.BLACK, w*0.015,bold=False)
+			arcade.draw_text('to move forward. Release all ',info_left_margin, int(h*a[5]-h*0.03), arcade.color.BLACK, w*0.015,bold=False)
+			arcade.draw_text('before next step',info_left_margin, int(h*a[5]-h*0.06), arcade.color.BLACK, w*0.015,bold=False)
 		self.draw_clock(a, w, h,info_left_margin)
 		self.draw_dialogue(w,h,0.3)
 		#arcade.draw_text(f"{time.perf_counter()-self.key_time}",int(w*0.25), h*0.2, arcade.color.BLACK, w*0.15)  
@@ -332,6 +337,9 @@ class MyGame(arcade.Window):
 
 	def on_key_release(self, symbol, modifiers):
 		self.held_keys=[]
+		
+	def on_close(self,event=None):
+		pass
 
 	def on_mouse_press(self, x, y, button, modifiers):
 		if not self.dialogue is None:
@@ -361,16 +369,15 @@ class MyGame(arcade.Window):
 		self.reset_game()        
 
 	def on_mouse_motion(self,x, y, dx, dy):
-		if not self.dialogue is None:
-			if self.over_sprite(self.OK_button, x, y):
+		if self.dist_to_walk==0:
+			if (self.over_sprite(self.OK_button, x, y) and (not self.dialogue is None)) or self.over_sprite(self.home, x, y):
 				self.set_mouse_cursor(self.hand_cursor)
 			else:
 				self.set_mouse_cursor(None)  
 			return
-		if self.over_sprite(self.home, x, y):
-			self.set_mouse_cursor(self.hand_cursor)  
 		else:
 			self.set_mouse_cursor(None)  
+
 
 	def reset_game(self,initial=False):
 		w, h = self.size
@@ -426,7 +433,7 @@ climb as many mountains as your time allows you to.""")
 		if self.climbed>len(self.pos):
 			self.climbed=len(self.pos)
 			self.stilltogo=0
-			self.score=NOK_PER_CLIMB*self.climbed
+			self.score=self.nok_per_climb*self.climbed
 
 
 

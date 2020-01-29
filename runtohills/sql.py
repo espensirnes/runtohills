@@ -11,7 +11,7 @@ def get_connection():
 		conn,crsr='No connection',None
 		try:
 			conn = pymssql.connect(host='titlon.uit.no', 
-						   user="experiment_subject", 
+						   user="exp_subject", 
 				password='kzl32##@@3222hh', 
 				database='experiment')  
 			crsr=conn.cursor()
@@ -25,7 +25,6 @@ def save_results(record,conn,crsr):
 	
 	record['ExperimentEnd']=datetime.now().strftime("%H:%M:%S")
 	record['Date']=datetime.now().strftime("%Y-%m-%d")
-	#you may substitute pymysql for pymssql if you prefer the MS SQL client
 
 
 	tbl=[]
@@ -63,17 +62,17 @@ SELECT TOP 1000 [ID]
       ,[sunk_cost]
       ,[minuttes]
       ,[n_lives]
-  FROM [experiment].[dbo].[experiment_info]"""
+	  ,[NOK]
+  FROM [experiment].[dbo].[experiment_info_test]"""
 	crsr.execute(SQLExpr)
 	a=crsr.fetchall()[0]
-	ID,sunc_cost, minuttes,n_lives=a
+	ID,sunc_cost, minuttes,n_lives,NOK=a
 	sunc_cost=tuple(np.array(sunc_cost.split(';'),dtype=int))
 	record['ExperimentID']=ID
 	record['sunc_cost']=sunc_cost
 	record['minuttes']=minuttes
 	record['n_lives']=n_lives
-	
-	return a[0][0]
+	record['NOK']=NOK
 	
 	
 	
@@ -85,11 +84,6 @@ RECONFIGURE;
 
 ALTER DATABASE [experiment] SET CONTAINMENT = PARTIAL;
 
-CREATE USER experiment_subject WITH PASSWORD = 'kzl32##@@3222hh';
-GRANT INSERT ON OBJECT::[experiment].[dbo].[record] TO experiment_subject;
-
-CREATE USER experimenter WITH PASSWORD = 'kzl32##@@3222hh';
-GRANT SELECT TO experimenter;
 
 /*(last must be run from master db in query manager)*/
 
@@ -108,7 +102,14 @@ CREATE TABLE [experiment].[dbo].[record](
 
 CREATE NONCLUSTERED INDEX IX ON [experiment].[dbo].[record] ([ID],[Date],[ExperimentID],[SubjectID],[description])
 ALTER TABLE [experiment].[dbo].[record] ADD CONSTRAINT PK PRIMARY KEY CLUSTERED (ID)
-GRANT INSERT ON OBJECT::[experiment].[dbo].[record] TO experiment_subject;
+
+CREATE USER exp_subject WITH PASSWORD = 'kzl32##@@3222hh';
+GRANT INSERT ON OBJECT::[experiment].[dbo].[record] TO exp_subject;
+
+CREATE USER experimenter WITH PASSWORD = 'kzl32##@@3222hh';
+GRANT SELECT TO experimenter;
+
+
 """
 
 sql_experiment_info="""
@@ -121,6 +122,22 @@ CREATE TABLE [experiment].[dbo].[experiment_info](
 [n_lives] int NULL
 
 );
-INSERT INTO [experiment].[dbo].[experiment_info] ([ID],[sunk_cost],[minuttes],[n_lives]) VALUES ('E.2','2;12;24',20,3)
-GRANT SELECT ON OBJECT::[experiment].[dbo].[experiment_info] TO experiment_subject;
+INSERT INTO [experiment].[dbo].[experiment_info] ([ID],[sunk_cost],[minuttes],[n_lives],[NOK]) VALUES ('E.2','2;12;24',20,3,1)
+GRANT SELECT ON OBJECT::[experiment].[dbo].[experiment_info] TO exp_subject;
+"""
+
+sql_experiment_info_test="""
+
+DROP TABLE [experiment].[dbo].[experiment_info_test];
+CREATE TABLE [experiment].[dbo].[experiment_info_test](
+[ID] varchar(500) NULL,
+[sunk_cost] varchar(50) NULL,
+[minuttes] int NULL,
+[n_lives] int NULL,
+[NOK] float NULL
+
+);
+
+INSERT INTO [experiment].[dbo].[experiment_info_test] ([ID],[sunk_cost],[minuttes],[n_lives],[NOK]) VALUES ('E.3','2;12;24',20,3,10)
+GRANT SELECT ON OBJECT::[experiment].[dbo].[experiment_info_test] TO exp_subject
 """

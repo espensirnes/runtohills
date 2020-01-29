@@ -5,11 +5,13 @@ import tkinter as tk
 from tkinter import ttk
 from multiprocessing import pool
 import time
+from tkinter import messagebox
 #todo:enable finnish control
 try:
 	import questions as quest
 except:
 	from . import questions as quest
+
 	
 class window:
 	def __init__(self,title,iconpath=None,height=200,width=400):
@@ -42,8 +44,8 @@ class window:
 		self.win.update_idletasks()		
 		
 
-def prequestions(record):
-	q=questions(quest.preexperiment, 'Innledende spørsmål', record,True,leavbutton='Gå videre')
+def prequestions(record,conn=None):
+	q=questions(quest.preexperiment, 'Innledende spørsmål', record,True,leavbutton='Gå videre',conn=conn)
 	q.mainloop()
 	
 	
@@ -53,10 +55,10 @@ def postquestions(record):
 
 
 class questions(tk.Tk):
-	def __init__(self,questions,title,record,has_id=False,height=400,width=1000,leavbutton='Close'):
+	def __init__(self,questions,title,record,has_id=False,height=400,width=1000,leavbutton='Close',conn=None):
 		tk.Tk.__init__(self)	
 		self.geometry('%sx%s' %(width,height))
-		self.attributes("-fullscreen", True)
+		self.state('zoomed')
 		self.fullscreen=True
 		self.title(title)
 		self.has_id=has_id
@@ -76,18 +78,29 @@ class questions(tk.Tk):
 		
 		self.Continue.grid(sticky='SEW',row=i+3)
 		self.bind("<Escape>", self.toggle_fullscreen)
+		self.protocol("WM_DELETE_WINDOW", self.close)
+		if conn=='No connection':
+			tk.messagebox.showinfo("No database connection",
+								   """The application needs to close because it could 
+not connect to database. Try again or contact 
+your system administrator""")
+			try:
+				self.destroy()
+			except:
+				pass
+		
 		
 	def toggle_fullscreen(self,event):
 		self.fullscreen=not self.fullscreen
 		self.attributes("-fullscreen", self.fullscreen)
 		
-	def close(self):
+	def close(self,event=None):
 		if self.has_id:
 			self.record['SubjectID']=self.questions[0].answer_str.get()
 		for i in range(self.has_id,len(self.questions)):
 			s=self.questions[i].answer_str.get()
 			self.record[f"{self.name}:{i}"]=s
-			if s=='':
+			if s=='' and (not self.questions[i].answer is None):
 				self.outputframe_text.set('Alle felter må fylles ut')
 				return
 		self.destroy()
