@@ -29,6 +29,10 @@ class OK_button:
 	def __init__(self,window):
 
 		self.window=window
+		self.height=0
+		self.width=0
+		self.center_x = 0
+		self.center_y = 0		
 
 		
 	def draw(self,center_x,center_y,height,width,text='OK'):
@@ -58,10 +62,11 @@ class home(arcade.Sprite):
 		self.window=window
 
 		
-	def draw(self):
+	def draw(self,show):
 		w, h = self.window.size
 		self.center_x = w*0.12
 		self.center_y = h*0.35	
+		self.alpha=show*255+(1-show)*50
 		
 		
 class advance(arcade.Sprite):

@@ -191,7 +191,7 @@ class MyGame(arcade.Window):
 		self.draw_lives()
 		self.draw_walker()
 		self.draw_climber()
-		self.home.draw()
+		self.home.draw(self.dist_to_walk==0)
 
 		# Put the text on the screen.
 
@@ -369,16 +369,15 @@ class MyGame(arcade.Window):
 		self.reset_game()        
 
 	def on_mouse_motion(self,x, y, dx, dy):
-		if (not self.dialogue is None) and self.dist_to_walk==0:
-			if self.over_sprite(self.OK_button, x, y):
+		if self.dist_to_walk==0:
+			if (self.over_sprite(self.OK_button, x, y) and (not self.dialogue is None)) or self.over_sprite(self.home, x, y):
 				self.set_mouse_cursor(self.hand_cursor)
 			else:
 				self.set_mouse_cursor(None)  
 			return
-		if self.over_sprite(self.home, x, y):
-			self.set_mouse_cursor(self.hand_cursor)  
 		else:
 			self.set_mouse_cursor(None)  
+
 
 	def reset_game(self,initial=False):
 		w, h = self.size

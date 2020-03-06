@@ -29,12 +29,19 @@ def save_results(record,conn,crsr):
 	tbl=[]
 	for i in record:
 		if not i in ['Date','SubjectID','ExperimentID']:
-			try:
-				tbl.append((record['Date'],record['ExperimentID'],record['SubjectID'],i,float(record[i]),None))
-			except:
-				tbl.append((record['Date'],record['ExperimentID'],record['SubjectID'],i,None,str(record[i])))
+			if i=='data':
+				for is_trial,game_number,key,value,cause in record[i]:
+					append_to_table(tbl, record, key, value,cause,is_trial,game_number)
+			else:
+				append_to_table(tbl, record, i, record[i])
+				
 	InsertTableIntoDB(conn, crsr, tbl)
 			
+def append_to_table(tbl,record,description,value,cause=None,is_trial=None,game_number=None):
+	try:
+		tbl.append((record['Date'],record['ExperimentID'],record['SubjectID'],description,is_trial,game_number,cause,float(value),str(value)))
+	except:
+		tbl.append((record['Date'],record['ExperimentID'],record['SubjectID'],description,is_trial,game_number,cause,None,str(value)))	
 
 def InsertTableIntoDB(conn,crsr, datatable):
 	SQLExpr="""INSERT INTO `experiment`.`record`
@@ -42,6 +49,9 @@ def InsertTableIntoDB(conn,crsr, datatable):
 	`ExperimentID`,
 	`SubjectID`,
 	`description`,
+	`IsTrial`,
+	`game_number`,
+	`cause`,
 	`value_float`,
 	`value_str`) VALUES (%s,%s,%s,%s,%s,%s)
 	"""

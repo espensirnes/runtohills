@@ -110,7 +110,7 @@ class faller(arcade.Sprite):
 		w, h = self.window.size
 		self.center_y-=h*FALL_SPEED
 		if self.center_y<=self.floor:
-			self.window.reset_game()
+			self.window.reset_game('accident')
 			self.isfalling=False
 		super().update()    
 
@@ -193,7 +193,7 @@ class winner(arcade.Sprite):
 				self.blink_count=0
 				self.alpha=0
 				self.blinking=False
-				self.window.reset_game()
+				self.window.reset_game('winner')
 		super().update()  
 		
 	def blink(self):

@@ -26,7 +26,9 @@ postexperiment=[
 ["1 Hvilket kjønn identifiserer du deg med?", ["Mann","Kvinne","Annet"],'option'],
 ["2 Hvor gammel er du?"	,("<20","20-22","23-25","26-28",">28"),'option'],
 ["""3 Holdning til risiko (Dohmen et al 2011) 
-(0 = ikke villig til å ta risiko i det hele tatt, 10 = svært villig til å ta risiko)""",None,None],
+(0 = ikke villig til å ta risiko i det hele tatt, 10 = svært villig til å ta risiko)""",
+list(range(0,11)),
+'option'],
 ["""3.1 Hvordan ser du på deg selv, er du en person som generelt er fullstendig 
 klar til å ta risiko, eller en person som prøver å unngå risiko? """,
  list(range(0,11)),

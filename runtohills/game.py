@@ -60,6 +60,7 @@ class MyGame(arcade.Window):
 		self.minuttes=record['minuttes']
 		self.n_lives=record['n_lives']   
 		self.nok_per_climb=record['NOK']  
+		self.record['data']=[]
 		self.frame_count = 0
 
 
@@ -123,7 +124,7 @@ class MyGame(arcade.Window):
 		self.total_score=0
 		self.game_number=0      
 		self.add_sprites()
-		self.reset_game(True)      
+		self.reset_game('initial')      
 
 
 
@@ -241,7 +242,7 @@ class MyGame(arcade.Window):
 		t=time.perf_counter()-self.timer
 		t=self.minuttes*60-t
 		if t<0:
-			self.add_to_records()
+			self.add_to_records('game over')
 			self.record['total_score']=self.total_score
 			self.dialogue=("GAME OVER", f"""You earned NOK {self.total_score}""")
 			self.game_over=True
@@ -250,29 +251,29 @@ class MyGame(arcade.Window):
 		seconds=int(t-minutes*60)
 		arcade.draw_text(f"{minutes:02}:{seconds:02}",w*0.15, int(h*a[6]), arcade.color.BLACK, w*0.027,bold=True)
 
-	def add_to_records(self):
+	def add_to_records(self,cause):
 
 		
-		self.add_to_record('session_score',self.score)
-		self.add_to_record('total_score')
-		self.add_to_record('dist_to_walk')
-		self.add_to_record('dist_walked')
-		self.add_to_record('high_risk')
-		self.add_to_record('climbed')
-		self.add_to_record('stilltogo')
+		self.add_to_record('session_score',self.score,cause)
+		self.add_to_record('total_score',cause)
+		self.add_to_record('dist_to_walk',cause)
+		self.add_to_record('dist_walked',cause)
+		self.add_to_record('high_risk',cause)
+		self.add_to_record('climbed',cause)
+		self.add_to_record('stilltogo',cause)
 
 		
 		if not self.timer is None:
-			self.add_to_record('time_left',time.perf_counter()-self.timer)
+			self.add_to_record('time_left',time.perf_counter()-self.timer,cause)
 
 
-	def add_to_record(self,key,value='No value passed'):
+	def add_to_record(self,key,value='No value passed',cause):
 		if value=='No value passed':
 			value=self.__dict__[key]
-		trial=''
+		is_trial=False
 		if self.game_number<=self.n_lives:
-			trial='(trial)'
-		self.record[f'game{trial}#{self.game_number}:{key}']=value
+			is_trial=True
+		self.record['data'].append([is_trial,self.game_number,key,value,cause])
 				
 	def draw_dialogue(self,w,h,size):
 		if self.dialogue is None:
@@ -366,7 +367,7 @@ class MyGame(arcade.Window):
 			return
 		if not self.jar.result==1:
 			self.total_score+=self.score
-		self.reset_game()        
+		self.reset_game('reward collected')        
 
 	def on_mouse_motion(self,x, y, dx, dy):
 		if self.dist_to_walk==0:
@@ -379,7 +380,9 @@ class MyGame(arcade.Window):
 			self.set_mouse_cursor(None)  
 
 
-	def reset_game(self,initial=False):
+	def reset_game(self,cause):
+		if not cause=='initial':
+			self.add_to_records(cause)
 		w, h = self.size
 		self.high_risk=random.uniform(0, 1)>0.5
 		self.sunc_cost_level=int(random.uniform(0, 1)*3)
@@ -392,7 +395,7 @@ class MyGame(arcade.Window):
 		self.jar.is_active=False
 		self.dist_walked=0 
 		self.set_mountain(self.cur_mountain)
-		if not initial:
+		if not cause=='initial':
 			if self.game_number<self.n_lives:
 				self.lives[self.game_number].alpha=100
 			self.game_number+=1
@@ -403,7 +406,7 @@ What you earn from now on, will be paid out to you in cash. After you
 have pressed 'OK', you have 20 minutes to complete the game. You can 
 climb as many mountains as your time allows you to.""")
 				self.total_score=0
-			self.add_to_record('time_to_mountain',time.perf_counter()-self.apporach_time)
+			self.add_to_record('time_to_mountain',time.perf_counter()-self.apporach_time,cause)
 		self.apporach_time=time.perf_counter()
 		self.climber.alpha=0
 		self.walker.alpha=0
@@ -411,10 +414,8 @@ climb as many mountains as your time allows you to.""")
 
 		self.faller.alpha=0
 		self.climber.alpha=0
-
-
 		self.jar.hide()
-		self.add_to_records()
+		
 
 	def advance(self):
 		if self.jar.is_active or self.winner.blinking:
